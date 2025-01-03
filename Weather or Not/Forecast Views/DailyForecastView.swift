@@ -1,0 +1,18 @@
+//
+//  DailyForecastView.swift
+//  Weather or Not
+//
+//  Created by Nonprawich I. on 03/01/2025.
+//
+
+import SwiftUI
+
+struct DailyForecastView: View {
+    var body: some View {
+        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    }
+}
+
+#Preview {
+    DailyForecastView()
+}
