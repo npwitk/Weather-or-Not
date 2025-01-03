@@ -15,7 +15,7 @@ class WeatherManager {
     static let shared = WeatherManager()
     let service = WeatherService()
     
-    var temperatureFormater: MeasurementFormatter {
+    var temperatureFormatter: MeasurementFormatter {
         let formatter = MeasurementFormatter()
         formatter.numberFormatter.maximumFractionDigits = 0
         return formatter
@@ -30,6 +30,17 @@ class WeatherManager {
             return forecast
         }.value
         return currentWeather
+    }
+    
+    func hourlyForecast(for location: CLLocation) async -> Forecast<HourWeather>? {
+        let hourlyForecast = await Task.detached(priority: .userInitiated) {
+            let forecast = try? await self.service.weather(
+                for: location,
+                including: .hourly
+            )
+            return forecast
+        }.value
+        return hourlyForecast
     }
     
     func weatherAttribution() async -> WeatherAttribution? {

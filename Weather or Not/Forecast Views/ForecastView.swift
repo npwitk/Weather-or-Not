@@ -16,10 +16,29 @@ struct ForecastView: View {
     @Environment(LocationManager.self) var locationManager
     @State private var selectedCity: City?
     let weatherManager = WeatherManager.shared
+    
     @State private var currentWeather: CurrentWeather?
+    @State private var hourlyForecast: Forecast<HourWeather>?
+    
     @State private var isLoading = false
     @State private var showCityList = false
     @State private var timezone: TimeZone = .current
+    
+    var highTemperature: String? {
+        if let high = hourlyForecast?.map({ $0.temperature }).max() {
+            return weatherManager.temperatureFormatter.string(from: high)
+        } else {
+            return nil
+        }
+    }
+    
+    var lowTemperature: String? {
+        if let low = hourlyForecast?.map({$0.temperature}).min() {
+            return weatherManager.temperatureFormatter.string(from: low)
+        } else {
+            return nil
+        }
+    }
     
     var body: some View {
         VStack {
@@ -32,29 +51,23 @@ struct ForecastView: View {
                         .font(.title)
                         .bold()
                     if let currentWeather {
-                        Text(currentWeather.date.localDate(for: timezone))
-                        Text(currentWeather.date.localTime(for: timezone))
-                        Image(systemName: currentWeather.symbolName)
-                            .renderingMode(.original)
-                            .symbolVariant(.fill)
-                            .font(.system(size: 60.0, weight: .bold))
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(.secondary.opacity(0.2))
-                            )
-                        
-                        let temp = weatherManager.temperatureFormater.string(from: currentWeather.temperature)
-                        
-                        Text(temp)
-                            .font(.title2)
-                        
-                        Text(currentWeather.condition.description)
-                            .font(.title3)
-                        
-                        Spacer()
-                        AttributionView()
-                            .tint(.white)
+                        CurrentWeatherView(
+                            currentWeather: currentWeather,
+                            highTemperature: highTemperature,
+                            lowTemperature: lowTemperature,
+                            timezone: timezone
+                        )
                     }
+                    Divider()
+                    if let hourlyForecast {
+                        HourlyForecastView(
+                            hourlyForecast: hourlyForecast,
+                            timezone: timezone
+                        )
+                    }
+                    Spacer()
+                    AttributionView()
+                        .tint(.white)
                 }
             }
         }
@@ -109,6 +122,7 @@ struct ForecastView: View {
         Task.detached { @MainActor in
             currentWeather = await weatherManager.currentWeather(for: city.clLocation)
             timezone = await locationManager.getTimezone(for: city.clLocation)
+            hourlyForecast = await weatherManager.hourlyForecast(for: city.clLocation)
         }
         isLoading = false
     }
