@@ -24,6 +24,7 @@ struct City: Identifiable, Hashable {
     
     static var cities: [City] {
         [
+            .init(name: "Bangkok", latitude: 14.077604, longitude: 100.595848),
             .init(name: "Paris, France", latitude: 48.856788, longitude: 2.351077),
             .init(name: "Syndney, Australia", latitude: -33.872710, longitude: 151.205694),
             .init(name: "Washington, DC", latitude: 38.895438, longitude: -77.031281)
